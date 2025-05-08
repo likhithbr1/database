@@ -1,0 +1,345 @@
+Got it — removing `price_at_purchase` means we'll always use the current product price (`products.price`) when calculating totals or analytics.
+
+Here's the **final revised SQL DDL**:
+
+---
+
+### ✅ `customers`
+
+```sql
+CREATE TABLE customers (
+    customer_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    country VARCHAR(50),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+---
+
+### ✅ `products`
+
+```sql
+CREATE TABLE products (
+    product_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    category VARCHAR(50),
+    price DECIMAL(10,2) NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT TRUE
+);
+```
+
+---
+
+### ✅ `orders`
+
+```sql
+CREATE TABLE orders (
+    order_id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT,
+    order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('pending', 'shipped', 'cancelled', 'delivered') DEFAULT 'pending',
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+);
+```
+
+---
+
+### ✅ `order_items` *(no price at purchase)*
+
+```sql
+CREATE TABLE order_items (
+    order_item_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT,
+    product_id INT,
+    quantity INT NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+```
+
+---
+
+### ✅ `inventory`
+
+```sql
+CREATE TABLE inventory (
+    product_id INT PRIMARY KEY,
+    stock_quantity INT DEFAULT 0,
+    last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+```
+
+---
+
+This version is leaner and assumes product price doesn't change frequently, or that retroactive analysis isn't required.
+
+Would you like example queries for computing total sales, pending orders, or product demand next?
+
+
+
+DML 
+
+INSERT INTO customers VALUES (1, 'Alice Johnson', 'customer1@example.com', 'India', '2022-11-13 00:00:00');",
+  "INSERT INTO customers VALUES (2, 'Bob Smith', 'customer2@example.com', 'India', '2022-04-11 00:00:00');",
+  "INSERT INTO customers VALUES (3, 'Carlos Martinez', 'customer3@example.com', 'UK', '2022-06-07 00:00:00');",
+  "INSERT INTO customers VALUES (4, 'Diana Lee', 'customer4@example.com', 'India', '2022-10-12 00:00:00');",
+  "INSERT INTO customers VALUES (5, 'Ethan Kim', 'customer5@example.com', 'UK', '2022-02-25 00:00:00');",
+  "INSERT INTO customers VALUES (6, 'Fiona Wang', 'customer6@example.com', 'India', '2022-08-28 00:00:00');",
+  "INSERT INTO customers VALUES (7, 'George Patel', 'customer7@example.com', 'Germany', '2022-03-10 00:00:00');",
+  "INSERT INTO customers VALUES (8, 'Hannah Clark', 'customer8@example.com', 'India', '2022-12-11 00:00:00');",
+  "INSERT INTO customers VALUES (9, 'Ivan Lopez', 'customer9@example.com', 'Germany', '2022-04-14 00:00:00');",
+  "INSERT INTO customers VALUES (10, 'Julia Brown', 'customer10@example.com', 'Canada', '2022-07-22 00:00:00');",
+  "INSERT INTO customers VALUES (11, 'Kevin Adams', 'customer11@example.com', 'UK', '2022-11-09 00:00:00');",
+  "INSERT INTO customers VALUES (12, 'Laura White', 'customer12@example.com', 'USA', '2022-07-25 00:00:00');",
+  "INSERT INTO customers VALUES (13, 'Michael Green', 'customer13@example.com', 'UK', '2022-12-12 00:00:00');",
+  "INSERT INTO customers VALUES (14, 'Nina Gupta', 'customer14@example.com', 'USA', '2022-03-05 00:00:00');",
+  "INSERT INTO customers VALUES (15, 'Oscar Nguyen', 'customer15@example.com', 'Canada', '2022-02-20 00:00:00');",
+  "INSERT INTO customers VALUES (16, 'Priya Shah', 'customer16@example.com', 'UK', '2022-04-04 00:00:00');",
+  "INSERT INTO customers VALUES (17, 'Quincy Baker', 'customer17@example.com', 'Germany', '2022-01-14 00:00:00');",
+  "INSERT INTO customers VALUES (18, 'Rachel Singh', 'customer18@example.com', 'Germany', '2022-06-22 00:00:00');",
+  "INSERT INTO customers VALUES (19, 'Sam Chen', 'customer19@example.com', 'UK', '2022-09-13 00:00:00');",
+  "INSERT INTO customers VALUES (20, 'Tina Das', 'customer20@example.com', 'Germany', '2022-11-09 00:00:00');",
+  "INSERT INTO customers VALUES (21, 'Umar Ali', 'customer21@example.com', 'Canada', '2022-06-01 00:00:00');",
+  "INSERT INTO customers VALUES (22, 'Vera Thomas', 'customer22@example.com', 'UK', '2022-02-06 00:00:00');",
+  "INSERT INTO customers VALUES (23, 'Will Zhang', 'customer23@example.com', 'Canada', '2022-12-28 00:00:00');",
+  "INSERT INTO customers VALUES (24, 'Xenia Roy', 'customer24@example.com', 'Canada', '2022-05-08 00:00:00');",
+  "INSERT INTO customers VALUES (25, 'Yusuf Mehta', 'customer25@example.com', 'USA', '2022-07-25 00:00:00');",
+  "INSERT INTO customers VALUES (26, 'Zara Paul', 'customer26@example.com', 'UK', '2022-12-04 00:00:00');",
+  "INSERT INTO customers VALUES (27, 'Amit Bhatt', 'customer27@example.com', 'USA', '2022-11-02 00:00:00');",
+  "INSERT INTO customers VALUES (28, 'Bella Fernandez', 'customer28@example.com', 'India', '2022-10-17 00:00:00');",
+  "INSERT INTO customers VALUES (29, 'Chetan Rao', 'customer29@example.com', 'India', '2022-02-07 00:00:00');",
+  "INSERT INTO customers VALUES (30, 'Divya Nair', 'customer30@example.com', 'USA', '2022-11-03 00:00:00');",
+  "INSERT INTO customers VALUES (31, 'Edward Tan', 'customer31@example.com', 'UK', '2022-02-22 00:00:00');",
+  "INSERT INTO customers VALUES (32, 'Fatima Khan', 'customer32@example.com', 'Canada', '2022-09-18 00:00:00');",
+  "INSERT INTO customers VALUES (33, 'Gavin Reed', 'customer33@example.com', 'UK', '2022-12-18 00:00:00');",
+  "INSERT INTO customers VALUES (34, 'Heena Kapoor', 'customer34@example.com', 'USA', '2022-07-27 00:00:00');",
+  "INSERT INTO customers VALUES (35, 'Isla Morgan', 'customer35@example.com', 'India', '2022-08-16 00:00:00');",
+  "INSERT INTO customers VALUES (36, 'Jayden Lee', 'customer36@example.com', 'UK', '2022-07-16 00:00:00');",
+  "INSERT INTO customers VALUES (37, 'Kavya Krishnan', 'customer37@example.com', 'Germany', '2022-12-08 00:00:00');",
+  "INSERT INTO customers VALUES (38, 'Liam Foster', 'customer38@example.com', 'USA', '2022-02-06 00:00:00');",
+  "INSERT INTO customers VALUES (39, 'Maya Joshi', 'customer39@example.com', 'Canada', '2022-07-08 00:00:00');",
+  "INSERT INTO customers VALUES (40, 'Nathan Zhou', 'customer40@example.com', 'Canada', '2022-04-09 00:00:00');",
+  "INSERT INTO customers VALUES (41, 'Olivia Reed', 'customer41@example.com', 'Germany', '2022-12-20 00:00:00');",
+  "INSERT INTO customers VALUES (42, 'Parth Verma', 'customer42@example.com', 'Canada', '2022-03-26 00:00:00');",
+  "INSERT INTO customers VALUES (43, 'Ria Sen', 'customer43@example.com', 'Canada', '2022-04-06 00:00:00');",
+  "INSERT INTO customers VALUES (44, 'Sahil Menon', 'customer44@example.com', 'Canada', '2022-03-13 00:00:00');",
+  "INSERT INTO customers VALUES (45, 'Tanvi Batra', 'customer45@example.com', 'Germany', '2022-02-28 00:00:00');",
+  "INSERT INTO customers VALUES (46, 'Uma Kale', 'customer46@example.com', 'UK', '2022-10-19 00:00:00');",
+  "INSERT INTO customers VALUES (47, 'Vivaan Goel', 'customer47@example.com', 'UK', '2022-08-11 00:00:00');",
+  "INSERT INTO customers VALUES (48, 'Wendy Liu', 'customer48@example.com', 'Germany', '2022-01-24 00:00:00');",
+  "INSERT INTO customers VALUES (49, 'Xander Pinto', 'customer49@example.com', 'USA', '2022-10-04 00:00:00');",
+  "INSERT INTO customers VALUES (50, 'Yara D’Souza', 'customer50@example.com', 'India', '2022-08-05 00:00:00');"],
+
+
+
+ ["INSERT INTO products VALUES (1, 'iPhone 14', 'Books', 77.44, '2022-10-01 00:00:00', True);",
+  "INSERT INTO products VALUES (2, 'Samsung Galaxy S22', 'Clothing', 261.0, '2022-06-15 00:00:00', True);",
+  "INSERT INTO products VALUES (3, 'Dell XPS 13', 'Furniture', 440.62, '2022-09-17 00:00:00', True);",
+  "INSERT INTO products VALUES (4, 'HP Envy 15', 'Electronics', 100.2, '2022-06-07 00:00:00', True);",
+  "INSERT INTO products VALUES (5, 'Sony WH-1000XM5', 'Groceries', 70.21, '2022-03-25 00:00:00', True);",
+  "INSERT INTO products VALUES (6, 'Apple MacBook Pro', 'Clothing', 68.72, '2022-04-25 00:00:00', True);",
+  "INSERT INTO products VALUES (7, 'Logitech MX Master 3', 'Groceries', 328.33, '2022-12-19 00:00:00', True);",
+  "INSERT INTO products VALUES (8, 'Google Pixel 7', 'Electronics', 69.13, '2022-06-17 00:00:00', True);",
+  "INSERT INTO products VALUES (9, 'Kindle Paperwhite', 'Electronics', 224.65, '2022-09-03 00:00:00', True);",
+  "INSERT INTO products VALUES (10, 'Fitbit Charge 5', 'Furniture', 287.41, '2022-02-15 00:00:00', True);",
+  "INSERT INTO products VALUES (11, 'Lenovo ThinkPad X1', 'Electronics', 467.87, '2022-11-04 00:00:00', True);",
+  "INSERT INTO products VALUES (12, 'Asus ROG Zephyrus', 'Furniture', 82.11, '2022-11-17 00:00:00', True);",
+  "INSERT INTO products VALUES (13, 'Canon EOS R5', 'Furniture', 127.28, '2022-02-21 00:00:00', True);",
+  "INSERT INTO products VALUES (14, 'Nikon Z6', 'Electronics', 13.26, '2022-11-28 00:00:00', True);",
+  "INSERT INTO products VALUES (15, 'GoPro Hero11', 'Electronics', 461.76, '2022-10-08 00:00:00', True);",
+  "INSERT INTO products VALUES (16, 'Microsoft Surface Pro', 'Electronics', 79.18, '2022-12-03 00:00:00', True);",
+  "INSERT INTO products VALUES (17, 'Jabra Elite 85t', 'Furniture', 171.42, '2022-04-27 00:00:00', True);",
+  "INSERT INTO products VALUES (18, 'Bose QuietComfort 45', 'Furniture', 219.24, '2022-01-01 00:00:00', True);",
+  "INSERT INTO products VALUES (19, 'Xiaomi Mi Band 7', 'Clothing', 237.08, '2022-04-14 00:00:00', True);",
+  "INSERT INTO products VALUES (20, 'OnePlus 11', 'Clothing', 221.76, '2022-04-25 00:00:00', True);",
+  "INSERT INTO products VALUES (21, 'LG OLED TV', 'Clothing', 69.2, '2022-11-21 00:00:00', True);",
+  "INSERT INTO products VALUES (22, 'Samsung QLED TV', 'Electronics', 403.78, '2022-02-13 00:00:00', True);",
+  "INSERT INTO products VALUES (23, 'Amazon Echo Dot', 'Groceries', 269.27, '2022-05-06 00:00:00', True);",
+  "INSERT INTO products VALUES (24, 'Apple iPad Air', 'Clothing', 232.6, '2022-04-12 00:00:00', True);",
+  "INSERT INTO products VALUES (25, 'Realme Buds Air 3', 'Electronics', 24.95, '2022-11-03 00:00:00', True);",
+  "INSERT INTO products VALUES (26, 'Tile Mate', 'Books', 67.52, '2022-01-16 00:00:00', True);",
+  "INSERT INTO products VALUES (27, 'DJI Mini 3 Pro', 'Electronics', 391.21, '2022-12-06 00:00:00', True);",
+  "INSERT INTO products VALUES (28, 'Anker PowerCore', 'Electronics', 407.72, '2022-07-10 00:00:00', True);",
+  "INSERT INTO products VALUES (29, 'TP-Link Router', 'Books', 156.21, '2022-07-20 00:00:00', True);",
+  "INSERT INTO products VALUES (30, 'Google Nest Hub', 'Groceries', 80.18, '2022-10-24 00:00:00', True);",
+  "INSERT INTO products VALUES (31, 'Philips Hue Bulb', 'Furniture', 392.91, '2022-10-07 00:00:00', True);",
+  "INSERT INTO products VALUES (32, 'Roku Streaming Stick', 'Clothing', 227.6, '2022-01-25 00:00:00', True);",
+  "INSERT INTO products VALUES (33, 'Nintendo Switch', 'Furniture', 369.88, '2022-12-08 00:00:00', True);",
+  "INSERT INTO products VALUES (34, 'PlayStation 5', 'Clothing', 60.81, '2022-11-19 00:00:00', True);",
+  "INSERT INTO products VALUES (35, 'Xbox Series X', 'Clothing', 235.33, '2022-01-20 00:00:00', True);",
+  "INSERT INTO products VALUES (36, 'WD External HDD', 'Groceries', 435.14, '2022-05-25 00:00:00', True);",
+  "INSERT INTO products VALUES (37, 'Seagate SSD', 'Furniture', 380.43, '2022-04-28 00:00:00', True);",
+  "INSERT INTO products VALUES (38, 'Corsair K95 Keyboard', 'Electronics', 173.21, '2022-04-07 00:00:00', True);",
+  "INSERT INTO products VALUES (39, 'Razer DeathAdder', 'Electronics', 252.42, '2022-11-21 00:00:00', True);",
+  "INSERT INTO products VALUES (40, 'Logitech Brio', 'Clothing', 301.8, '2022-07-19 00:00:00', True);",
+  "INSERT INTO products VALUES (41, 'Garmin Forerunner', 'Groceries', 409.11, '2022-08-19 00:00:00', True);",
+  "INSERT INTO products VALUES (42, 'Apple Watch Series 8', 'Clothing', 437.85, '2022-11-03 00:00:00', True);",
+  "INSERT INTO products VALUES (43, 'Samsung Galaxy Watch 5', 'Furniture', 447.44, '2022-06-13 00:00:00', True);",
+  "INSERT INTO products VALUES (44, 'Echo Show 8', 'Clothing', 171.91, '2022-08-24 00:00:00', True);",
+  "INSERT INTO products VALUES (45, 'iRobot Roomba', 'Books', 307.14, '2022-07-05 00:00:00', True);",
+  "INSERT INTO products VALUES (46, 'Nespresso Machine', 'Groceries', 313.48, '2022-01-06 00:00:00', True);",
+  "INSERT INTO products VALUES (47, 'Dyson V15', 'Books', 259.64, '2022-02-12 00:00:00', True);",
+  "INSERT INTO products VALUES (48, 'Instant Pot Duo', 'Furniture', 272.57, '2022-07-06 00:00:00', True);",
+  "INSERT INTO products VALUES (49, 'TCL Android TV', 'Books', 470.57, '2022-09-16 00:00:00', True);",
+  "INSERT INTO products VALUES (50, 'Beats Studio Buds', 'Electronics', 156.05, '2022-07-01 00:00:00', True);"
+
+
+
+INSERT INTO inventory VALUES (1, 61, '2024-02-09 00:00:00');",
+ "INSERT INTO inventory VALUES (2, 55, '2024-12-20 00:00:00');",
+ "INSERT INTO inventory VALUES (3, 43, '2024-11-10 00:00:00');",
+ "INSERT INTO inventory VALUES (4, 94, '2024-11-18 00:00:00');",
+ "INSERT INTO inventory VALUES (5, 19, '2024-09-28 00:00:00');",
+ "INSERT INTO inventory VALUES (6, 46, '2024-12-28 00:00:00');",
+ "INSERT INTO inventory VALUES (7, 40, '2024-09-14 00:00:00');",
+ "INSERT INTO inventory VALUES (8, 42, '2024-04-06 00:00:00');",
+ "INSERT INTO inventory VALUES (9, 20, '2024-09-15 00:00:00');",
+ "INSERT INTO inventory VALUES (10, 27, '2024-06-26 00:00:00');",
+ "INSERT INTO inventory VALUES (11, 10, '2024-10-26 00:00:00');",
+ "INSERT INTO inventory VALUES (12, 21, '2024-01-21 00:00:00');",
+ "INSERT INTO inventory VALUES (13, 18, '2024-11-02 00:00:00');",
+ "INSERT INTO inventory VALUES (14, 86, '2024-10-25 00:00:00');",
+ "INSERT INTO inventory VALUES (15, 17, '2024-05-08 00:00:00');",
+ "INSERT INTO inventory VALUES (16, 4, '2024-07-06 00:00:00');",
+ "INSERT INTO inventory VALUES (17, 20, '2024-07-08 00:00:00');",
+ "INSERT INTO inventory VALUES (18, 39, '2024-02-16 00:00:00');",
+ "INSERT INTO inventory VALUES (19, 46, '2024-07-24 00:00:00');",
+ "INSERT INTO inventory VALUES (20, 60, '2024-03-04 00:00:00');",
+ "INSERT INTO inventory VALUES (21, 80, '2024-06-22 00:00:00');",
+ "INSERT INTO inventory VALUES (22, 89, '2024-05-17 00:00:00');",
+ "INSERT INTO inventory VALUES (23, 19, '2024-02-19 00:00:00');",
+ "INSERT INTO inventory VALUES (24, 79, '2024-04-08 00:00:00');",
+ "INSERT INTO inventory VALUES (25, 50, '2024-04-02 00:00:00');",
+ "INSERT INTO inventory VALUES (26, 84, '2024-11-05 00:00:00');",
+ "INSERT INTO inventory VALUES (27, 18, '2024-11-09 00:00:00');",
+ "INSERT INTO inventory VALUES (28, 59, '2024-07-12 00:00:00');",
+ "INSERT INTO inventory VALUES (29, 73, '2024-02-18 00:00:00');",
+ "INSERT INTO inventory VALUES (30, 58, '2024-03-04 00:00:00');",
+ "INSERT INTO inventory VALUES (31, 1, '2024-10-20 00:00:00');",
+ "INSERT INTO inventory VALUES (32, 63, '2024-04-17 00:00:00');",
+ "INSERT INTO inventory VALUES (33, 97, '2024-12-24 00:00:00');",
+ "INSERT INTO inventory VALUES (34, 48, '2024-12-03 00:00:00');",
+ "INSERT INTO inventory VALUES (35, 49, '2024-01-23 00:00:00');",
+ "INSERT INTO inventory VALUES (36, 85, '2024-06-19 00:00:00');",
+ "INSERT INTO inventory VALUES (37, 65, '2024-12-10 00:00:00');",
+ "INSERT INTO inventory VALUES (38, 69, '2024-01-23 00:00:00');",
+ "INSERT INTO inventory VALUES (39, 76, '2024-07-19 00:00:00');",
+ "INSERT INTO inventory VALUES (40, 60, '2024-07-12 00:00:00');",
+ "INSERT INTO inventory VALUES (41, 75, '2024-06-22 00:00:00');",
+ "INSERT INTO inventory VALUES (42, 69, '2024-08-06 00:00:00');",
+ "INSERT INTO inventory VALUES (43, 29, '2024-01-28 00:00:00');",
+ "INSERT INTO inventory VALUES (44, 14, '2024-03-22 00:00:00');",
+ "INSERT INTO inventory VALUES (45, 8, '2024-04-25 00:00:00');",
+ "INSERT INTO inventory VALUES (46, 22, '2024-10-10 00:00:00');",
+ "INSERT INTO inventory VALUES (47, 8, '2024-07-26 00:00:00');",
+ "INSERT INTO inventory VALUES (48, 98, '2024-01-13 00:00:00');",
+ "INSERT INTO inventory VALUES (49, 18, '2024-08-08 00:00:00');",
+ "INSERT INTO inventory VALUES (50, 8, '2024-05-16 00:00:00');"
+
+
+INSERT INTO orders VALUES (1, 25, '2024-06-17 15:50:41', 'cancelled');",
+ "INSERT INTO orders VALUES (2, 21, '2024-02-28 15:50:41', 'pending');",
+ "INSERT INTO orders VALUES (3, 45, '2025-02-09 15:50:41', 'shipped');",
+ "INSERT INTO orders VALUES (4, 24, '2024-06-08 15:50:41', 'shipped');",
+ "INSERT INTO orders VALUES (5, 13, '2024-07-13 15:50:41', 'pending');",
+ "INSERT INTO orders VALUES (6, 47, '2024-05-04 15:50:41', 'delivered');",
+ "INSERT INTO orders VALUES (7, 45, '2025-02-07 15:50:41', 'cancelled');",
+ "INSERT INTO orders VALUES (8, 6, '2023-10-15 15:50:41', 'pending');",
+ "INSERT INTO orders VALUES (9, 24, '2023-11-12 15:50:41', 'cancelled');",
+ "INSERT INTO orders VALUES (10, 23, '2024-10-27 15:50:41', 'cancelled');",
+ "INSERT INTO orders VALUES (11, 29, '2024-04-16 15:50:41', 'delivered');",
+ "INSERT INTO orders VALUES (12, 47, '2024-07-16 15:50:41', 'delivered');",
+ "INSERT INTO orders VALUES (13, 37, '2025-01-30 15:50:41', 'delivered');",
+ "INSERT INTO orders VALUES (14, 31, '2024-10-05 15:50:41', 'cancelled');",
+ "INSERT INTO orders VALUES (15, 43, '2024-04-22 15:50:41', 'shipped');",
+ "INSERT INTO orders VALUES (16, 49, '2024-08-02 15:50:41', 'cancelled');",
+ "INSERT INTO orders VALUES (17, 38, '2024-12-01 15:50:41', 'cancelled');",
+ "INSERT INTO orders VALUES (18, 24, '2025-03-20 15:50:41', 'cancelled');",
+ "INSERT INTO orders VALUES (19, 48, '2024-11-01 15:50:41', 'pending');",
+ "INSERT INTO orders VALUES (20, 49, '2024-06-10 15:50:41', 'delivered');",
+ "INSERT INTO orders VALUES (21, 20, '2025-04-05 15:50:41', 'cancelled');",
+ "INSERT INTO orders VALUES (22, 29, '2024-06-15 15:50:41', 'shipped');",
+ "INSERT INTO orders VALUES (23, 27, '2023-05-09 15:50:41', 'pending');",
+ "INSERT INTO orders VALUES (24, 5, '2025-04-18 15:50:41', 'cancelled');",
+ "INSERT INTO orders VALUES (25, 4, '2023-11-19 15:50:41', 'pending');",
+ "INSERT INTO orders VALUES (26, 41, '2023-09-05 15:50:41', 'delivered');",
+ "INSERT INTO orders VALUES (27, 21, '2024-12-24 15:50:41', 'cancelled');",
+ "INSERT INTO orders VALUES (28, 32, '2025-05-02 15:50:41', 'pending');",
+ "INSERT INTO orders VALUES (29, 32, '2025-04-28 15:50:41', 'shipped');",
+ "INSERT INTO orders VALUES (30, 5, '2024-07-31 15:50:41', 'pending');",
+ "INSERT INTO orders VALUES (31, 5, '2025-01-04 15:50:41', 'cancelled');",
+ "INSERT INTO orders VALUES (32, 36, '2024-01-31 15:50:41', 'shipped');",
+ "INSERT INTO orders VALUES (33, 33, '2024-01-08 15:50:41', 'cancelled');",
+ "INSERT INTO orders VALUES (34, 45, '2023-12-31 15:50:41', 'delivered');",
+ "INSERT INTO orders VALUES (35, 6, '2024-07-23 15:50:41', 'pending');",
+ "INSERT INTO orders VALUES (36, 12, '2024-08-21 15:50:41', 'shipped');",
+ "INSERT INTO orders VALUES (37, 12, '2024-01-31 15:50:41', 'pending');",
+ "INSERT INTO orders VALUES (38, 11, '2023-12-09 15:50:41', 'cancelled');",
+ "INSERT INTO orders VALUES (39, 25, '2023-08-10 15:50:41', 'cancelled');",
+ "INSERT INTO orders VALUES (40, 18, '2023-08-16 15:50:41', 'pending');",
+ "INSERT INTO orders VALUES (41, 43, '2024-09-07 15:50:41', 'cancelled');",
+ "INSERT INTO orders VALUES (42, 8, '2025-04-21 15:50:41', 'delivered');",
+ "INSERT INTO orders VALUES (43, 17, '2024-07-02 15:50:41', 'pending');",
+ "INSERT INTO orders VALUES (44, 33, '2024-01-15 15:50:41', 'shipped');",
+ "INSERT INTO orders VALUES (45, 21, '2024-08-13 15:50:41', 'pending');",
+ "INSERT INTO orders VALUES (46, 9, '2024-06-11 15:50:41', 'delivered');",
+ "INSERT INTO orders VALUES (47, 10, '2023-12-08 15:50:41', 'shipped');",
+ "INSERT INTO orders VALUES (48, 46, '2024-08-29 15:50:41', 'shipped');",
+ "INSERT INTO orders VALUES (49, 30, '2024-10-01 15:50:41', 'cancelled');",
+ "INSERT INTO orders VALUES (50, 45, '2024-03-06 15:50:41', 'delivered');"
+
+
+INSERT INTO order_items VALUES (1, 1, 24, 9);',
+ 'INSERT INTO order_items VALUES (2, 1, 35, 3);',
+ 'INSERT INTO order_items VALUES (3, 2, 1, 6);',
+ 'INSERT INTO order_items VALUES (4, 2, 7, 9);',
+ 'INSERT INTO order_items VALUES (5, 3, 24, 1);',
+ 'INSERT INTO order_items VALUES (6, 3, 43, 5);',
+ 'INSERT INTO order_items VALUES (7, 3, 13, 1);',
+ 'INSERT INTO order_items VALUES (8, 3, 22, 9);',
+ 'INSERT INTO order_items VALUES (9, 4, 38, 3);',
+ 'INSERT INTO order_items VALUES (10, 5, 12, 3);',
+ 'INSERT INTO order_items VALUES (11, 6, 35, 8);',
+ 'INSERT INTO order_items VALUES (12, 6, 33, 6);',
+ 'INSERT INTO order_items VALUES (13, 7, 44, 2);',
+ 'INSERT INTO order_items VALUES (14, 7, 49, 10);',
+ 'INSERT INTO order_items VALUES (15, 7, 6, 8);',
+ 'INSERT INTO order_items VALUES (16, 7, 4, 1);',
+ 'INSERT INTO order_items VALUES (17, 8, 49, 6);',
+ 'INSERT INTO order_items VALUES (18, 8, 23, 7);',
+ 'INSERT INTO order_items VALUES (19, 8, 22, 2);',
+ 'INSERT INTO order_items VALUES (20, 9, 18, 4);',
+ 'INSERT INTO order_items VALUES (21, 9, 38, 2);',
+ 'INSERT INTO order_items VALUES (22, 9, 41, 3);',
+ 'INSERT INTO order_items VALUES (23, 9, 49, 6);',
+ 'INSERT INTO order_items VALUES (24, 10, 34, 6);',
+ 'INSERT INTO order_items VALUES (25, 10, 14, 3);',
+ 'INSERT INTO order_items VALUES (26, 11, 20, 9);',
+ 'INSERT INTO order_items VALUES (27, 12, 38, 3);',
+ 'INSERT INTO order_items VALUES (28, 12, 29, 1);',
+ 'INSERT INTO order_items VALUES (29, 12, 20, 10);',
+ 'INSERT INTO order_items VALUES (30, 13, 19, 9);',
+ 'INSERT INTO order_items VALUES (31, 13, 4, 9);',
+ 'INSERT INTO order_items VALUES (32, 13, 14, 8);',
+ 'INSERT INTO order_items VALUES (33, 14, 3, 3);',
+ 'INSERT INTO order_items VALUES (34, 14, 33, 7);',
+ 'INSERT INTO order_items VALUES (35, 14, 15, 2);',
+ 'INSERT INTO order_items VALUES (36, 15, 15, 3);',
+ 'INSERT INTO order_items VALUES (37, 15, 11, 4);',
+ 'INSERT INTO order_items VALUES (38, 16, 27, 2);',
+ 'INSERT INTO order_items VALUES (39, 16, 29, 8);',
+ 'INSERT INTO order_items VALUES (40, 16, 25, 9);',
+ 'INSERT INTO order_items VALUES (41, 17, 24, 2);',
+ 'INSERT INTO order_items VALUES (42, 18, 6, 7);',
+ 'INSERT INTO order_items VALUES (43, 18, 37, 5);',
+ 'INSERT INTO order_items VALUES (44, 18, 46, 8);',
+ 'INSERT INTO order_items VALUES (45, 18, 16, 4);',
+ 'INSERT INTO order_items VALUES (46, 19, 1, 6);',
+ 'INSERT INTO order_items VALUES (47, 19, 12, 4);',
+ 'INSERT INTO order_items VALUES (48, 20, 2, 6);',
+ 'INSERT INTO order_items VALUES (49, 21, 22, 8);',
+ 'INSERT INTO order_items VALUES (50, 21, 15, 9);'
