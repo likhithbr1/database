@@ -1,0 +1,82 @@
+Here is the **complete and final DDL** for your **third enterprise order system database**, with fully descriptive but distinct table and column names:
+
+---
+
+### ✅ `buyers`
+
+```sql
+CREATE TABLE buyers (
+    buyer_id INT AUTO_INCREMENT PRIMARY KEY,
+    buyer_name VARCHAR(100) NOT NULL,
+    buyer_email VARCHAR(100) UNIQUE,
+    buyer_location VARCHAR(50),
+    registration_date DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+---
+
+### ✅ `product_catalog`
+
+```sql
+CREATE TABLE product_catalog (
+    product_id INT AUTO_INCREMENT PRIMARY KEY,
+    product_name VARCHAR(100) NOT NULL,
+    product_type VARCHAR(50),
+    price_per_unit DECIMAL(10,2) NOT NULL,
+    date_listed DATETIME DEFAULT CURRENT_TIMESTAMP,
+    active_flag BOOLEAN DEFAULT TRUE
+);
+```
+
+---
+
+### ✅ `sales_orders`
+
+```sql
+CREATE TABLE sales_orders (
+    sales_order_id INT AUTO_INCREMENT PRIMARY KEY,
+    buyer_id INT,
+    order_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    order_status ENUM('processing', 'completed', 'cancelled', 'on_hold') DEFAULT 'processing',
+    FOREIGN KEY (buyer_id) REFERENCES buyers(buyer_id)
+);
+```
+
+---
+
+### ✅ `sales_order_details`
+
+```sql
+CREATE TABLE sales_order_details (
+    detail_id INT AUTO_INCREMENT PRIMARY KEY,
+    sales_order_id INT,
+    product_id INT,
+    units_ordered INT NOT NULL,
+    FOREIGN KEY (sales_order_id) REFERENCES sales_orders(sales_order_id),
+    FOREIGN KEY (product_id) REFERENCES product_catalog(product_id)
+);
+```
+
+---
+
+### ✅ `product_inventory`
+
+```sql
+CREATE TABLE product_inventory (
+    product_id INT PRIMARY KEY,
+    available_stock INT DEFAULT 0,
+    last_stock_update DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES product_catalog(product_id)
+);
+```
+
+---
+
+This schema:
+
+* Is optimized for natural language querying
+* Is structurally different from DB1 and DB2
+* Supports all 10 business questions you outlined
+
+Would you like me to now generate sample data (`INSERT` statements) with realistic names and dates across months/years?
