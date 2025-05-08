@@ -1,0 +1,339 @@
+Perfect — here’s your **final DDL for the second database** with fully descriptive column names (but using `id` instead of `identifier`) to keep it natural-language friendly and clean.
+
+---
+
+### ✅ 1. `clients`
+
+```sql
+CREATE TABLE clients (
+    client_id INT AUTO_INCREMENT PRIMARY KEY,
+    client_full_name VARCHAR(100) NOT NULL,
+    client_email_address VARCHAR(100) UNIQUE,
+    client_country VARCHAR(50),
+    account_created_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+---
+
+### ✅ 2. `catalog_items`
+
+```sql
+CREATE TABLE catalog_items (
+    item_id INT AUTO_INCREMENT PRIMARY KEY,
+    item_title VARCHAR(100) NOT NULL,
+    item_category VARCHAR(50),
+    current_unit_price DECIMAL(10,2) NOT NULL,
+    item_added_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    is_item_active BOOLEAN DEFAULT TRUE
+);
+```
+
+---
+
+### ✅ 3. `order_records`
+
+```sql
+CREATE TABLE order_records (
+    order_id INT AUTO_INCREMENT PRIMARY KEY,
+    client_id INT,
+    order_placed_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    order_current_status ENUM('open', 'fulfilled', 'cancelled', 'on_hold') DEFAULT 'open',
+    FOREIGN KEY (client_id) REFERENCES clients(client_id)
+);
+```
+
+---
+
+### ✅ 4. `order_line_entries`
+
+```sql
+CREATE TABLE order_line_entries (
+    order_line_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT,
+    item_id INT,
+    item_quantity_ordered INT NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES order_records(order_id),
+    FOREIGN KEY (item_id) REFERENCES catalog_items(item_id)
+);
+```
+
+---
+
+### ✅ 5. `item_inventory_status`
+
+```sql
+CREATE TABLE item_inventory_status (
+    item_id INT PRIMARY KEY,
+    item_stock_quantity INT DEFAULT 0,
+    inventory_last_updated_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (item_id) REFERENCES catalog_items(item_id)
+);
+```
+
+---
+
+This schema:
+
+* Keeps naming human-readable and LLM-friendly
+* Uses full words (like `order_placed_timestamp`) for clarity
+* Maintains slight distinction from the first database
+
+Ready for `INSERT` data next?
+
+
+"INSERT INTO clients VALUES (1, 'Arjun Iyer', 'arjun.iyer@example.com', 'Canada', '2022-05-21 00:00:00');",
+ "INSERT INTO clients VALUES (2, 'Beatrice Nolan', 'beatrice.nolan@example.com', 'India', '2022-07-23 00:00:00');",
+ "INSERT INTO clients VALUES (3, 'Chloe Tan', 'chloe.tan@example.com', 'Canada', '2022-12-04 00:00:00');",
+ "INSERT INTO clients VALUES (4, 'Deepak Rao', 'deepak.rao@example.com', 'India', '2022-01-04 00:00:00');",
+ "INSERT INTO clients VALUES (5, 'Elena Petrova', 'elena.petrova@example.com', 'India', '2022-06-11 00:00:00');",
+ "INSERT INTO clients VALUES (6, 'Farhan Malik', 'farhan.malik@example.com', 'USA', '2022-06-06 00:00:00');",
+ "INSERT INTO clients VALUES (7, 'Greta Lindholm', 'greta.lindholm@example.com', 'Canada', '2022-11-10 00:00:00');",
+ "INSERT INTO clients VALUES (8, 'Haruki Nakamura', 'haruki.nakamura@example.com', 'Canada', '2022-08-18 00:00:00');",
+ "INSERT INTO clients VALUES (9, 'Isabelle Dubois', 'isabelle.dubois@example.com', 'USA', '2022-09-13 00:00:00');",
+ "INSERT INTO clients VALUES (10, 'Jack Thompson', 'jack.thompson@example.com', 'USA', '2022-09-16 00:00:00');",
+ "INSERT INTO clients VALUES (11, 'Kiran Bhat', 'kiran.bhat@example.com', 'Canada', '2022-05-17 00:00:00');",
+ "INSERT INTO clients VALUES (12, 'Lana Schmidt', 'lana.schmidt@example.com', 'Canada', '2022-03-17 00:00:00');",
+ "INSERT INTO clients VALUES (13, 'Marcus Grant', 'marcus.grant@example.com', 'UK', '2022-03-26 00:00:00');",
+ "INSERT INTO clients VALUES (14, 'Nia Robinson', 'nia.robinson@example.com', 'Canada', '2022-05-09 00:00:00');",
+ "INSERT INTO clients VALUES (15, 'Omar Idris', 'omar.idris@example.com', 'USA', '2022-03-07 00:00:00');",
+ "INSERT INTO clients VALUES (16, 'Penelope Cruz', 'penelope.cruz@example.com', 'UK', '2022-04-22 00:00:00');",
+ "INSERT INTO clients VALUES (17, 'Quinn Avery', 'quinn.avery@example.com', 'India', '2022-12-05 00:00:00');",
+ "INSERT INTO clients VALUES (18, 'Ravi Chandran', 'ravi.chandran@example.com', 'Germany', '2022-12-14 00:00:00');",
+ "INSERT INTO clients VALUES (19, 'Sofia Mendes', 'sofia.mendes@example.com', 'UK', '2022-10-15 00:00:00');",
+ "INSERT INTO clients VALUES (20, 'Tarek Ali', 'tarek.ali@example.com', 'Germany', '2022-04-16 00:00:00');",
+ "INSERT INTO clients VALUES (21, 'Uma Srinivasan', 'uma.srinivasan@example.com', 'Germany', '2022-02-09 00:00:00');",
+ "INSERT INTO clients VALUES (22, 'Vikram Joshi', 'vikram.joshi@example.com', 'India', '2022-04-07 00:00:00');",
+ "INSERT INTO clients VALUES (23, 'Wanda Liu', 'wanda.liu@example.com', 'Canada', '2022-01-09 00:00:00');",
+ "INSERT INTO clients VALUES (24, 'Ximena Torres', 'ximena.torres@example.com', 'UK', '2022-09-06 00:00:00');",
+ "INSERT INTO clients VALUES (25, 'Yannis Papadopoulos', 'yannis.papadopoulos@example.com', 'UK', '2022-08-20 00:00:00');",
+ "INSERT INTO clients VALUES (26, 'Zara Khan', 'zara.khan@example.com', 'UK', '2022-03-25 00:00:00');",
+ "INSERT INTO clients VALUES (27, 'Alicia Gomez', 'alicia.gomez@example.com', 'India', '2022-07-23 00:00:00');",
+ "INSERT INTO clients VALUES (28, 'Boris Novak', 'boris.novak@example.com', 'USA', '2022-02-08 00:00:00');",
+ "INSERT INTO clients VALUES (29, 'Camila Reyes', 'camila.reyes@example.com', 'Germany', '2022-05-07 00:00:00');",
+ "INSERT INTO clients VALUES (30, 'Dmitri Orlov', 'dmitri.orlov@example.com', 'Germany', '2022-08-10 00:00:00');",
+ "INSERT INTO clients VALUES (31, 'Emily Nguyen', 'emily.nguyen@example.com', 'India', '2022-11-25 00:00:00');",
+ "INSERT INTO clients VALUES (32, 'Fatima Zahra', 'fatima.zahra@example.com', 'UK', '2022-12-05 00:00:00');",
+ "INSERT INTO clients VALUES (33, 'Gustavo Lima', 'gustavo.lima@example.com', 'UK', '2022-05-18 00:00:00');",
+ "INSERT INTO clients VALUES (34, 'Hailey Brooks', 'hailey.brooks@example.com', 'Germany', '2022-01-24 00:00:00');",
+ "INSERT INTO clients VALUES (35, 'Imran Syed', 'imran.syed@example.com', 'UK', '2022-02-26 00:00:00');",
+ "INSERT INTO clients VALUES (36, 'Jaya Kapoor', 'jaya.kapoor@example.com', 'Germany', '2022-01-23 00:00:00');",
+ "INSERT INTO clients VALUES (37, 'Kaitlyn Smith', 'kaitlyn.smith@example.com', 'UK', '2022-04-04 00:00:00');",
+ "INSERT INTO clients VALUES (38, 'Leonardo Costa', 'leonardo.costa@example.com', 'UK', '2022-04-11 00:00:00');",
+ "INSERT INTO clients VALUES (39, 'Mei Lin', 'mei.lin@example.com', 'India', '2022-01-09 00:00:00');",
+ "INSERT INTO clients VALUES (40, 'Nikolai Petrov', 'nikolai.petrov@example.com', 'India', '2022-05-13 00:00:00');",
+ "INSERT INTO clients VALUES (41, 'Olivia White', 'olivia.white@example.com', 'India', '2022-08-13 00:00:00');",
+ "INSERT INTO clients VALUES (42, 'Parvez Sheikh', 'parvez.sheikh@example.com', 'USA', '2022-07-21 00:00:00');",
+ "INSERT INTO clients VALUES (43, 'Rosa Delgado', 'rosa.delgado@example.com', 'UK', '2022-01-12 00:00:00');",
+ "INSERT INTO clients VALUES (44, 'Sandeep Nair', 'sandeep.nair@example.com', 'Canada', '2022-07-24 00:00:00');",
+ "INSERT INTO clients VALUES (45, 'Tanya Gupta', 'tanya.gupta@example.com', 'India', '2022-06-25 00:00:00');",
+ "INSERT INTO clients VALUES (46, 'Ugo Ferrari', 'ugo.ferrari@example.com', 'UK', '2022-07-11 00:00:00');",
+ "INSERT INTO clients VALUES (47, 'Viola Karlsson', 'viola.karlsson@example.com', 'UK', '2022-02-14 00:00:00');",
+ "INSERT INTO clients VALUES (48, 'Willow James', 'willow.james@example.com', 'Germany', '2022-10-22 00:00:00');",
+ "INSERT INTO clients VALUES (49, 'Xander Wu', 'xander.wu@example.com', 'Canada', '2022-10-22 00:00:00');",
+ "INSERT INTO clients VALUES (50, 'Yara Salem', 'yara.salem@example.com', 'UK', '2022-03-24 00:00:00');",
+
+
+
+ "INSERT INTO catalog_items VALUES (1, 'AirPods Pro', 'Clothing', 175.96, '2022-09-15 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (2, 'Dyson Supersonic', 'Groceries', 544.44, '2022-11-28 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (3, 'Sony A7 III', 'Furniture', 151.9, '2022-08-23 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (4, 'Google Pixel Tablet', 'Books', 94.5, '2022-02-24 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (5, 'Canon Pixma Printer', 'Furniture', 503.8, '2022-03-13 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (6, 'Fitbit Inspire 3', 'Electronics', 383.7, '2022-01-11 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (7, 'Mac Mini M2', 'Groceries', 297.94, '2022-04-16 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (8, 'Nikon D5600', 'Groceries', 491.29, '2022-07-24 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (9, 'Anker Soundcore', 'Groceries', 41.52, '2022-03-14 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (10, 'Apple TV 4K', 'Books', 597.45, '2022-04-16 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (11, 'Samsung Smart Monitor', 'Groceries', 74.34, '2022-11-16 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (12, 'JBL Flip 6', 'Groceries', 119.95, '2022-09-12 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (13, 'iPad Mini 6', 'Furniture', 215.84, '2022-08-12 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (14, 'Oculus Quest 3', 'Clothing', 392.29, '2022-11-26 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (15, 'Ecovacs Deebot', 'Books', 594.11, '2022-05-07 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (16, 'LG UltraFine Display', 'Groceries', 577.01, '2022-07-12 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (17, 'BenQ Projector', 'Clothing', 444.23, '2022-05-14 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (18, 'SteelSeries Mouse', 'Electronics', 538.16, '2022-04-25 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (19, 'HP Pavilion Laptop', 'Books', 243.43, '2022-12-18 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (20, 'Alienware Aurora', 'Electronics', 392.2, '2022-08-11 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (21, 'Bosch Blender', 'Electronics', 541.31, '2022-11-03 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (22, 'TCL Sound Bar', 'Electronics', 430.08, '2022-01-05 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (23, 'Nest Thermostat', 'Clothing', 60.92, '2022-11-16 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (24, 'Philips Air Fryer', 'Furniture', 298.04, '2022-04-26 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (25, 'Tile Pro Tracker', 'Clothing', 483.67, '2022-09-19 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (26, 'GoPro Max', 'Furniture', 338.1, '2022-09-08 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (27, 'Amazon Kindle Oasis', 'Groceries', 418.94, '2022-09-10 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (28, 'Microsoft Surface Laptop', 'Clothing', 94.89, '2022-10-09 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (29, 'Asus VivoBook', 'Furniture', 507.93, '2022-12-14 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (30, 'Lenovo Yoga', 'Furniture', 92.9, '2022-08-14 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (31, 'Razer Blade', 'Electronics', 329.35, '2022-04-21 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (32, 'WD My Passport', 'Furniture', 512.58, '2022-05-05 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (33, 'Netgear Orbi', 'Electronics', 52.33, '2022-03-05 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (34, 'Belkin Charger', 'Electronics', 260.31, '2022-05-18 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (35, 'Garmin Instinct', 'Furniture', 545.91, '2022-10-21 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (36, 'Beats Flex', 'Furniture', 366.8, '2022-09-09 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (37, 'Echo Pop', 'Furniture', 38.4, '2022-02-28 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (38, 'Dell UltraSharp', 'Clothing', 563.29, '2022-08-14 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (39, 'TP-Link Extender', 'Furniture', 350.58, '2022-05-27 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (40, 'Sony Walkman', 'Groceries', 55.91, '2022-02-15 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (41, 'Huawei MatePad', 'Clothing', 99.03, '2022-12-02 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (42, 'Shark Vacuum', 'Clothing', 550.87, '2022-08-18 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (43, 'Hisense TV', 'Electronics', 204.98, '2022-01-15 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (44, 'Fire HD 10', 'Groceries', 306.55, '2022-02-14 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (45, 'OnePlus Pad', 'Groceries', 35.69, '2022-11-10 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (46, 'Logitech StreamCam', 'Books', 594.52, '2022-06-20 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (47, 'Corsair RAM', 'Furniture', 256.68, '2022-08-04 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (48, 'MSI Creator Z16', 'Groceries', 232.45, '2022-02-20 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (49, 'Thermaltake PSU', 'Clothing', 525.62, '2022-10-04 00:00:00', True);",
+ "INSERT INTO catalog_items VALUES (50, 'HyperX Cloud', 'Electronics', 350.04, '2022-11-05 00:00:00', True);"
+
+
+"INSERT INTO item_inventory_status VALUES (1, 80, '2024-05-12 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (2, 43, '2024-03-11 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (3, 100, '2024-01-22 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (4, 37, '2024-06-26 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (5, 94, '2024-01-07 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (6, 44, '2024-08-24 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (7, 16, '2024-01-02 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (8, 55, '2024-07-09 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (9, 28, '2024-10-26 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (10, 48, '2024-11-22 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (11, 30, '2024-10-08 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (12, 96, '2024-08-03 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (13, 79, '2024-08-26 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (14, 14, '2024-04-27 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (15, 81, '2024-09-03 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (16, 100, '2024-11-21 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (17, 86, '2024-07-10 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (18, 28, '2024-04-25 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (19, 78, '2024-01-09 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (20, 21, '2024-12-23 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (21, 55, '2024-07-11 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (22, 47, '2024-12-07 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (23, 98, '2024-04-28 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (24, 60, '2024-11-25 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (25, 48, '2024-03-17 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (26, 48, '2024-05-26 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (27, 52, '2024-05-12 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (28, 53, '2024-02-03 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (29, 17, '2024-12-24 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (30, 0, '2024-07-20 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (31, 80, '2024-07-13 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (32, 7, '2024-12-19 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (33, 33, '2024-06-23 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (34, 78, '2024-02-28 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (35, 70, '2024-02-09 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (36, 75, '2024-04-02 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (37, 61, '2024-05-03 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (38, 71, '2024-10-16 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (39, 63, '2024-09-26 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (40, 16, '2024-04-26 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (41, 16, '2024-07-13 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (42, 1, '2024-09-19 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (43, 21, '2024-10-14 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (44, 29, '2024-06-03 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (45, 18, '2024-12-05 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (46, 68, '2024-12-26 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (47, 6, '2024-10-10 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (48, 93, '2024-03-22 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (49, 29, '2024-11-18 00:00:00');",
+  "INSERT INTO item_inventory_status VALUES (50, 74, '2024-08-03 00:00:00');"],
+ ["INSERT INTO order_records VALUES (1, 22, '2023-09-26 16:08:29', 'open');",
+  "INSERT INTO order_records VALUES (2, 38, '2024-07-09 16:08:29', 'fulfilled');",
+  "INSERT INTO order_records VALUES (3, 22, '2024-03-12 16:08:29', 'open');",
+  "INSERT INTO order_records VALUES (4, 26, '2023-11-27 16:08:29', 'fulfilled');",
+  "INSERT INTO order_records VALUES (5, 7, '2024-02-03 16:08:29', 'open');",
+  "INSERT INTO order_records VALUES (6, 41, '2023-11-19 16:08:29', 'on_hold');",
+  "INSERT INTO order_records VALUES (7, 15, '2024-01-14 16:08:29', 'fulfilled');",
+  "INSERT INTO order_records VALUES (8, 10, '2024-06-23 16:08:29', 'fulfilled');",
+  "INSERT INTO order_records VALUES (9, 11, '2023-11-09 16:08:29', 'open');",
+  "INSERT INTO order_records VALUES (10, 20, '2024-08-26 16:08:29', 'on_hold');",
+  "INSERT INTO order_records VALUES (11, 45, '2024-08-27 16:08:29', 'fulfilled');",
+  "INSERT INTO order_records VALUES (12, 2, '2024-05-24 16:08:29', 'open');",
+  "INSERT INTO order_records VALUES (13, 50, '2025-01-01 16:08:29', 'cancelled');",
+  "INSERT INTO order_records VALUES (14, 34, '2024-12-24 16:08:29', 'fulfilled');",
+  "INSERT INTO order_records VALUES (15, 45, '2023-05-22 16:08:29', 'open');",
+  "INSERT INTO order_records VALUES (16, 47, '2023-09-16 16:08:29', 'open');",
+  "INSERT INTO order_records VALUES (17, 10, '2024-04-15 16:08:29', 'cancelled');",
+  "INSERT INTO order_records VALUES (18, 29, '2023-12-16 16:08:29', 'fulfilled');",
+  "INSERT INTO order_records VALUES (19, 49, '2025-02-01 16:08:29', 'cancelled');",
+  "INSERT INTO order_records VALUES (20, 1, '2025-04-30 16:08:29', 'fulfilled');",
+  "INSERT INTO order_records VALUES (21, 9, '2024-06-21 16:08:29', 'on_hold');",
+  "INSERT INTO order_records VALUES (22, 45, '2024-04-18 16:08:29', 'on_hold');",
+  "INSERT INTO order_records VALUES (23, 1, '2023-09-14 16:08:29', 'cancelled');",
+  "INSERT INTO order_records VALUES (24, 44, '2024-08-02 16:08:29', 'open');",
+  "INSERT INTO order_records VALUES (25, 21, '2024-04-20 16:08:29', 'open');",
+  "INSERT INTO order_records VALUES (26, 5, '2025-01-06 16:08:29', 'cancelled');",
+  "INSERT INTO order_records VALUES (27, 35, '2023-09-10 16:08:29', 'cancelled');",
+  "INSERT INTO order_records VALUES (28, 34, '2024-03-25 16:08:29', 'fulfilled');",
+  "INSERT INTO order_records VALUES (29, 28, '2024-05-19 16:08:29', 'open');",
+  "INSERT INTO order_records VALUES (30, 20, '2023-10-03 16:08:29', 'cancelled');",
+  "INSERT INTO order_records VALUES (31, 4, '2023-07-06 16:08:29', 'open');",
+  "INSERT INTO order_records VALUES (32, 13, '2025-03-08 16:08:29', 'on_hold');",
+  "INSERT INTO order_records VALUES (33, 29, '2024-04-25 16:08:29', 'fulfilled');",
+  "INSERT INTO order_records VALUES (34, 38, '2023-06-25 16:08:29', 'open');",
+  "INSERT INTO order_records VALUES (35, 36, '2024-09-13 16:08:29', 'cancelled');",
+  "INSERT INTO order_records VALUES (36, 45, '2024-01-14 16:08:29', 'cancelled');",
+  "INSERT INTO order_records VALUES (37, 48, '2024-08-23 16:08:29', 'cancelled');",
+  "INSERT INTO order_records VALUES (38, 41, '2023-11-14 16:08:29', 'cancelled');",
+  "INSERT INTO order_records VALUES (39, 46, '2024-04-13 16:08:29', 'fulfilled');",
+  "INSERT INTO order_records VALUES (40, 16, '2025-04-15 16:08:29', 'open');",
+  "INSERT INTO order_records VALUES (41, 46, '2023-08-16 16:08:29', 'on_hold');",
+  "INSERT INTO order_records VALUES (42, 37, '2024-12-16 16:08:29', 'open');",
+  "INSERT INTO order_records VALUES (43, 38, '2025-01-04 16:08:29', 'fulfilled');",
+  "INSERT INTO order_records VALUES (44, 38, '2024-02-01 16:08:29', 'open');",
+  "INSERT INTO order_records VALUES (45, 14, '2025-03-27 16:08:29', 'on_hold');",
+  "INSERT INTO order_records VALUES (46, 15, '2025-04-23 16:08:29', 'on_hold');",
+  "INSERT INTO order_records VALUES (47, 31, '2024-10-29 16:08:29', 'cancelled');",
+  "INSERT INTO order_records VALUES (48, 39, '2024-09-04 16:08:29', 'open');",
+  "INSERT INTO order_records VALUES (49, 43, '2024-05-22 16:08:29', 'cancelled');",
+  "INSERT INTO order_records VALUES (50, 1, '2024-08-24 16:08:29', 'cancelled');"],
+ ['INSERT INTO order_line_entries VALUES (1, 1, 39, 3);',
+  'INSERT INTO order_line_entries VALUES (2, 1, 1, 5);',
+  'INSERT INTO order_line_entries VALUES (3, 2, 20, 9);',
+  'INSERT INTO order_line_entries VALUES (4, 2, 31, 6);',
+  'INSERT INTO order_line_entries VALUES (5, 2, 44, 5);',
+  'INSERT INTO order_line_entries VALUES (6, 2, 37, 8);',
+  'INSERT INTO order_line_entries VALUES (7, 3, 19, 3);',
+  'INSERT INTO order_line_entries VALUES (8, 3, 18, 3);',
+  'INSERT INTO order_line_entries VALUES (9, 3, 20, 4);',
+  'INSERT INTO order_line_entries VALUES (10, 3, 34, 6);',
+  'INSERT INTO order_line_entries VALUES (11, 4, 23, 5);',
+  'INSERT INTO order_line_entries VALUES (12, 4, 39, 3);',
+  'INSERT INTO order_line_entries VALUES (13, 5, 37, 2);',
+  'INSERT INTO order_line_entries VALUES (14, 5, 22, 2);',
+  'INSERT INTO order_line_entries VALUES (15, 5, 16, 10);',
+  'INSERT INTO order_line_entries VALUES (16, 5, 46, 2);',
+  'INSERT INTO order_line_entries VALUES (17, 6, 25, 6);',
+  'INSERT INTO order_line_entries VALUES (18, 6, 29, 2);',
+  'INSERT INTO order_line_entries VALUES (19, 7, 6, 6);',
+  'INSERT INTO order_line_entries VALUES (20, 7, 8, 8);',
+  'INSERT INTO order_line_entries VALUES (21, 8, 45, 3);',
+  'INSERT INTO order_line_entries VALUES (22, 8, 50, 3);',
+  'INSERT INTO order_line_entries VALUES (23, 9, 28, 3);',
+  'INSERT INTO order_line_entries VALUES (24, 9, 19, 3);',
+  'INSERT INTO order_line_entries VALUES (25, 9, 47, 7);',
+  'INSERT INTO order_line_entries VALUES (26, 9, 43, 7);',
+  'INSERT INTO order_line_entries VALUES (27, 10, 37, 5);',
+  'INSERT INTO order_line_entries VALUES (28, 10, 28, 10);',
+  'INSERT INTO order_line_entries VALUES (29, 10, 5, 10);',
+  'INSERT INTO order_line_entries VALUES (30, 11, 1, 2);',
+  'INSERT INTO order_line_entries VALUES (31, 11, 16, 4);',
+  'INSERT INTO order_line_entries VALUES (32, 11, 35, 5);',
+  'INSERT INTO order_line_entries VALUES (33, 11, 3, 10);',
+  'INSERT INTO order_line_entries VALUES (34, 12, 7, 4);',
+  'INSERT INTO order_line_entries VALUES (35, 12, 36, 10);',
+  'INSERT INTO order_line_entries VALUES (36, 12, 42, 7);',
+  'INSERT INTO order_line_entries VALUES (37, 12, 10, 2);',
+  'INSERT INTO order_line_entries VALUES (38, 13, 45, 9);',
+  'INSERT INTO order_line_entries VALUES (39, 13, 7, 3);',
+  'INSERT INTO order_line_entries VALUES (40, 13, 34, 8);',
+  'INSERT INTO order_line_entries VALUES (41, 14, 34, 2);',
+  'INSERT INTO order_line_entries VALUES (42, 14, 43, 2);',
+  'INSERT INTO order_line_entries VALUES (43, 15, 43, 9);',
+  'INSERT INTO order_line_entries VALUES (44, 15, 18, 3);',
+  'INSERT INTO order_line_entries VALUES (45, 15, 49, 4);',
+  'INSERT INTO order_line_entries VALUES (46, 15, 17, 6);',
+  'INSERT INTO order_line_entries VALUES (47, 16, 6, 6);',
+  'INSERT INTO order_line_entries VALUES (48, 16, 5, 2);',
+  'INSERT INTO order_line_entries VALUES (49, 17, 17, 2);',
+  'INSERT INTO order_line_entries VALUES (50, 17, 38, 6);'])
